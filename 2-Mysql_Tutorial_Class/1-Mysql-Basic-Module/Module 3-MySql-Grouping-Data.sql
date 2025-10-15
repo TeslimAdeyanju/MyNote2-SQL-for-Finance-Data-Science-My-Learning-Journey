@@ -240,4 +240,14 @@ JOIN
 GROUP BY city, YEAR(paymentdate)
 with rollup
 
-
+--
+SELECT
+    IF(GROUPING(orderYear),'%%%%%', orderYear) orderYear,
+    IF(GROUPING(productLine), '$$$$', productLine) productLine,
+    SUM(orderValue) totalOrderValue
+FROM
+    sales
+GROUP BY
+    orderYear ,
+    productline
+WITH ROLLUP;
