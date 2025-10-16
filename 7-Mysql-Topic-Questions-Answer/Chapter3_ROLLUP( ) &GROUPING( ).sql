@@ -1,5 +1,5 @@
 
--- Question 1
+/* Question 1: Basic ROLLUP with Single Column*/
 select name as category_name, count(*) as total_number_film
 from film_category
 join category
@@ -8,7 +8,7 @@ group by name
 with rollup;
 
 
--- question 2 
+/* Question 2: Basic ROLLUP with Two Columns*/
 
 select 
        str.store_id,
@@ -23,6 +23,36 @@ group by
        with rollup; 
        
        
+/* Question 3: Understanding NULL in ROLLUP Results*/ 
+SELECT 
+    ct.country, 
+    cc.city,
+    COUNT(ct.country) AS 'country count', 
+    COUNT(cc.city)    AS 'city count'
+FROM
+    customer AS c
+JOIN 
+    address AS ad 
+USING 
+    (address_id)
+JOIN 
+    city AS cc 
+USING 
+    (city_id)
+JOIN 
+    country AS ct 
+USING 
+    (country_id)
+GROUP BY 
+    ct.country, cc.city WITH rollup
+
+
+
+
+
+
+
+
 
 
 
