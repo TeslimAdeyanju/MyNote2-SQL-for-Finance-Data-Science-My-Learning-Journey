@@ -44,12 +44,30 @@ JOIN
 USING 
     (country_id)
 GROUP BY 
-    ct.country, cc.city WITH rollup
+    ct.country, cc.city WITH rollup;
 
 
+/*Question 4: Column Hierarchy - Version A */
+
+SELECT 
+    p.customer_id,
+    YEAR(p.payment_date) AS payment_year,
+    SUM(p.amount) AS total_payments
+FROM payment p
+GROUP BY p.customer_id, 
+         YEAR(p.payment_date) 
+         WITH ROLLUP;
 
 
-
+-- Question 5: Column Hierarchy - Version B
+SELECT 
+    p.customer_id,
+    YEAR(p.payment_date) AS payment_year,
+    SUM(p.amount) AS total_payments
+FROM payment p
+GROUP BY YEAR(p.payment_date), 
+         p.customer_id 
+         WITH ROLLUP;
 
 
 

@@ -173,7 +173,6 @@ SELECT
 FROM payment
 WHERE customer_id IN (1, 2)
 ORDER BY customer_id, payment_date
-limit 15;
 
 
 /* Aggregate Window Functions */ 
@@ -188,16 +187,143 @@ FROM payment p
 JOIN rental r ON p.rental_id = r.rental_id
 JOIN inventory i ON r.inventory_id = i.inventory_id
 JOIN film f ON i.film_id = f.film_id
-limit 20
+limit 20;
+
+
+/* Moving 3-Payment Average */
+SELECT
+    customer_id,
+    payment_date,
+    amount,
+    SUM(amount) OVER (
+        PARTITION BY customer_id
+        ORDER BY payment_date
+        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ) AS last_3_payments_sum,
+    ROUND(AVG(amount) OVER (
+        PARTITION BY customer_id
+        ORDER BY payment_date
+        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ), 2) AS last_3_payments_avg
+FROM payment
+WHERE customer_id in (1, 2)
+ORDER BY customer_id;
+
+/* Example 1: Compare Each Film's Rental Rate to Category Average */
+SELECT
+    c.name AS category,
+    f.title,
+    f.rental_rate,
+    ROUND(AVG(f.rental_rate) OVER (PARTITION BY c.name), 2) AS category_avg_rate,
+    ROUND(f.rental_rate - AVG(f.rental_rate) OVER (PARTITION BY c.name), 2) AS diff_from_avg
+FROM film f
+JOIN film_category fc ON f.film_id = fc.film_id
+JOIN category c ON fc.category_id = c.category_id
+WHERE c.name IN ('Action', 'Comedy', 'Drama')
+ORDER BY category, diff_from_avg DESC;
 
 
 
+/* Example 2: Running Average of Payment Amounts */
+SELECT
+    customer_id,
+    payment_date,
+    amount,
+    ROUND(AVG(amount) OVER (
+        PARTITION BY customer_id
+        ORDER BY payment_date
+    ), 2) AS running_avg,
+    COUNT(*) OVER (
+        PARTITION BY customer_id
+        ORDER BY payment_date
+    ) AS payment_count
+FROM payment
+WHERE customer_id IN (5, 6)
+ORDER BY customer_id, payment_date
+LIMIT 20;
+
+--
+SELECT
+    DATE(payment_date) AS payment_day,
+    COUNT(*) AS daily_payment_count,
+    ROUND(AVG(COUNT(*)) OVER (
+        ORDER BY DATE(payment_date)
+        ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING
+    ), 2) AS centered_5day_avg
+FROM payment
+GROUP BY DATE(payment_date)
+ORDER BY payment_day
+LIMIT 20;
+
+--
+SELECT
+    c.name AS category,
+    f.title,
+    f.rental_rate,
+    MIN(f.rental_rate) OVER (PARTITION BY c.name) AS category_min_rate,
+    CASE
+        WHEN f.rental_rate = MIN(f.rental_rate) OVER (PARTITION BY c.name)
+        THEN 'CHEAPEST'
+        ELSE ''
+    END AS is_cheapest
+FROM film f
+JOIN film_category fc ON f.film_id = fc.film_id
+JOIN category c ON fc.category_id = c.category_id
+WHERE c.name IN ('Horror', 'Sci-Fi', 'Animation')
+ORDER BY category, rental_rate
+LIMIT 25;
 
 
+SELECT rental_rate * replacement_cost as m
+from film
 
 
+--using the sample database of classicmodels 
+SELECT
+  ROW_NUMBER() OVER (
+    ORDER BY productName
+  ) row_num,
+  productName,
+  msrp
+FROM
+  products
+ORDER BY
+  productName;
+  
+  
+-- Another Example 
+SELECT
+    productLine,
+    productName,
+    quantityInStock,
+    ROW_NUMBER() OVER (
+      PARTITION BY productLine
+      ORDER BY
+        quantityInStock DESC
+    ) row_num
+  FROM
+    products;
 
 
-
-
-
+--
+WITH inventory AS (
+  SELECT
+    productLine,
+    productName,
+    quantityInStock,
+    ROW_NUMBER() OVER (
+      PARTITION BY productLine
+      ORDER BY
+        quantityInStock DESC
+    ) row_num
+  FROM
+    products
+)
+SELECT
+  productLine,
+  productName,
+  quantityInStock
+FROM
+  inventory
+WHERE
+  row_num <= 3;

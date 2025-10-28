@@ -289,6 +289,9 @@ ORDER BY DATE_PART('year', sales_month), kind_of_business, sales_month;
 
 
 
+-- Index to see Percent change over time 
+
+
 
 
 
