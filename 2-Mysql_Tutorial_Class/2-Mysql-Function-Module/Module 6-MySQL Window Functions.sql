@@ -327,3 +327,32 @@ FROM
   inventory
 WHERE
   row_num <= 3;
+  
+  
+-- -- Rank actors by the number of films they've appeared in
+-- Ties get the same rank with gaps in the sequence
+
+SELECT
+    a.actor_id,
+    CONCAT(a.first_name, ' ', a.last_name) AS actor_name,
+    COUNT(fa.film_id) AS film_count,
+    -- RANK assigns same rank to ties and skips next ranks
+    -- Example: If 2 actors tie at rank 3, next actor gets rank 5
+    RANK() OVER (ORDER BY COUNT(fa.film_id) DESC) AS actor_rank
+FROM
+    actor a
+    JOIN film_actor fa ON a.actor_id = fa.actor_id
+GROUP BY
+    a.actor_id, a.first_name, a.last_name
+ORDER BY
+    actor_rank
+LIMIT 15;
+
+-- Notice: If actors have same film count, they get same rank
+-- The rank after tied values shows a gap
+
+
+
+--- 
+select * 
+from orders
