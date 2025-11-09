@@ -297,9 +297,42 @@ WHERE
 
 
 
+SELECT DISTINCT r.customer_id
+        FROM rental r
+        INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+        INNER JOIN film f ON i.film_id = f.film_id
+        INNER JOIN film_category fc ON f.film_id = fc.film_id
+        INNER JOIN category c ON fc.category_id = c.category_id
+        WHERE c.name = 'Sci-Fi';
+        
+
+SELECT 
+    customer_id,
+    first_name,
+    last_name,
+    email
+FROM 
+    customer
+WHERE 
+    customer_id IN (
+        SELECT DISTINCT r.customer_id
+        FROM rental r
+        INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+        INNER JOIN film f ON i.film_id = f.film_id
+        INNER JOIN film_category fc ON f.film_id = fc.film_id
+        INNER JOIN category c ON fc.category_id = c.category_id
+        WHERE c.name = 'Sci-Fi'
+    );
 
 
 
+--
+
+
+SELECT DISTINCT f.film_id
+        FROM rental r
+        INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+        INNER JOIN film f ON i.film_id = f.film_id
 
 
 
