@@ -328,13 +328,38 @@ WHERE
 
 --
 
-
 SELECT DISTINCT f.film_id
         FROM rental r
         INNER JOIN inventory i ON r.inventory_id = i.inventory_id
-        INNER JOIN film f ON i.film_id = f.film_id
+        INNER JOIN film f ON i.film_id = f.film_id; 
 
 
-
+SELECT 
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    c.email
+FROM 
+    customer c
+WHERE 
+    EXISTS (
+        SELECT 1
+        FROM rental r
+        WHERE r.customer_id = c.customer_id
+    );
+    
+    
+SELECT DISTINCT r.customer_id
+    FROM rental r
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film_category fc ON i.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    WHERE c.name = 'Action';
+    
+    
+SELECT customer_id
+    FROM rental
+    ORDER BY rental_date DESC
+    LIMIT 1
 
 
