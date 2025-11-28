@@ -1,7 +1,7 @@
 /*
 --------------------------------------------------------------------------------
 PostgreSQL Date/Time Fundamentals + Retail Sales Analysis
-Author: Teslim Adeyanju
+Author: Teslim Adeyanju, ACA
 Dialect: PostgreSQL 12+ (tested on 15/16)
 Purpose: Handy reference for date/timestamp functions, date/time arithmetic,
          formatting, and retail_sales analytics with GROUP BY + window functions.
