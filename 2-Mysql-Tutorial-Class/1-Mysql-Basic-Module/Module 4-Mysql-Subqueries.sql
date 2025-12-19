@@ -449,13 +449,36 @@ HAVING SUM(p.amount) =
          customer_id ) AS customer_totals );
 
 
+--
+SELECT film_id, title, rental_rate
+FROM film
+WHERE rental_rate = (
+    SELECT MAX(rental_rate)
+    FROM film
+);
+
+SELECT f.film_id, f.title,
+       COUNT(r.rental_id) AS rental_count
+FROM film f
+JOIN inventory i ON f.film_id = i.film_id
+JOIN rental r ON i.inventory_id = r.inventory_id
+GROUP BY f.film_id, f.title
+HAVING COUNT(rental_id) = 
+(
+SELECT
+    MAX(rental_count) as rental_id
+FROM (   SELECT
+            f.film_id,
+            COUNT(r.rental_id) AS rental_count
+        FROM film AS f
+        JOIN inventory AS y ON y.film_id = f.film_id
+        JOIN rental AS r    ON r.inventory_id = y.inventory_id
+        GROUP BY
+            f.film_id) AS film_rental)
 
 
 
-
-
-
-
+CALL GetOfficeByCountry('USA')
 
 
 
