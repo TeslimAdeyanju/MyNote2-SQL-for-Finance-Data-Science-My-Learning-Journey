@@ -474,18 +474,64 @@ FROM (   SELECT
         JOIN inventory AS y ON y.film_id = f.film_id
         JOIN rental AS r    ON r.inventory_id = y.inventory_id
         GROUP BY
-            f.film_id) AS film_rental)
+            f.film_id) AS film_rental);
 
 
 
-CALL GetOfficeByCountry('USA')
+--3.2  Complete Guide: Multiple-Row Operators (IN, ANY, ALL)
+--Business Scenario: "Find all customers who have rented films from the 'Action' category"
 
+SELECT customer_id, first_name, last_name, email
+FROM customer
+WHERE address_id in (
+SELECT DISTINCT r.customer_id
+    FROM rental r
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    JOIN film_category fc ON i.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    WHERE c.name = 'Action');
 
+-- Business Scenario: "Find all actors who have appeared in films rented by customer_id 5"
 
+SELECT  a.actor_id, 
+        a.first_name, 
+        a.last_name,
+       COUNT(DISTINCT fa.film_id) AS films_with_customer5
+FROM actor a
+JOIN film_actor fa ON a.actor_id = fa.actor_id
+WHERE fa.film_id IN (
+    SELECT DISTINCT i.film_id
+    FROM rental r
+    JOIN inventory i ON r.inventory_id = i.inventory_id
+    WHERE r.customer_id = 5
+)
+GROUP BY  a.actor_id, 
+          a.first_name, 
+          a.last_name
+ORDER BY films_with_customer5 DESC;
 
+-- Business Scenario: "Find all films that have NEVER been rented"
+SELECT f.film_id, f.title, f.rental_rate, f.length
+FROM film f
+WHERE f.film_id NOT IN (
+    SELECT DISTINCT i.film_id
+    FROM inventory i
+    JOIN rental r ON i.inventory_id = r.inventory_id
+)
+ORDER BY f.rental_rate DESC;
 
+ -- Business Scenario: "Find all staff members who work at stores that have inventory of 'Horror' films"
+ SELECT s.staff_id, s.first_name, s.last_name, s.email
+FROM staff s
+WHERE s.store_id IN (
+    SELECT DISTINCT i.store_id
+    FROM inventory i
+    JOIN film_category fc ON i.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    WHERE c.name = 'Horror'
+);
 
-
+-- Business Scenario: "Find customers who have rented films that cost exactly one of the standard price points (0.99, 2.99, 4.99)"
 
 
 
