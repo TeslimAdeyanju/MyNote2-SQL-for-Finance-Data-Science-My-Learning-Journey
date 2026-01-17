@@ -17,5 +17,11 @@ FROM ( SELECT
       number_of_transaction) AS a
 
 
+--
+SELECT o.customername, count(o.orders) as order
+from customers as c
+join payments  as p on c.customerNumber = p.customerNumber
+join orders    as o on o.customernumber = c.customerNumber
+group by o.customernumber
 
 

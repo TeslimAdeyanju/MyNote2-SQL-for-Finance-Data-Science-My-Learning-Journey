@@ -520,8 +520,10 @@ WHERE f.film_id NOT IN (
 )
 ORDER BY f.rental_rate DESC;
 
+ 
+ 
  -- Business Scenario: "Find all staff members who work at stores that have inventory of 'Horror' films"
- SELECT s.staff_id, s.first_name, s.last_name, s.email
+SELECT s.staff_id, s.first_name, s.last_name, s.email
 FROM staff s
 WHERE s.store_id IN (
     SELECT DISTINCT i.store_id
@@ -532,9 +534,24 @@ WHERE s.store_id IN (
 );
 
 -- Business Scenario: "Find customers who have rented films that cost exactly one of the standard price points (0.99, 2.99, 4.99)"
+SELECT DISTINCT c.customer_id, 
+                c.first_name, 
+                c.last_name,
+                COUNT(DISTINCT r.rental_id) AS total_rentals
+FROM customer c
+JOIN rental r ON c.customer_id = r.customer_id
+JOIN inventory i ON r.inventory_id = i.inventory_id
+JOIN film f ON i.film_id = f.film_id
+WHERE f.rental_rate IN (0.99, 2.99, 4.99)
+GROUP BY c.customer_id, 
+         c.first_name, 
+         c.last_name
+ORDER BY total_rentals DESC;
 
 
-
+--
+select rental_rate
+from film
 
 
 
