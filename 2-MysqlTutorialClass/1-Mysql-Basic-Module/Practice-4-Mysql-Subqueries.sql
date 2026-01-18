@@ -14,14 +14,17 @@ FROM ( SELECT
    GROUP BY
       customername
    ORDER BY
-      number_of_transaction) AS a
+      number_of_transaction) AS a;
 
 
 --
-SELECT o.customername, count(o.orders) as order
-from customers as c
-join payments  as p on c.customerNumber = p.customerNumber
-join orders    as o on o.customernumber = c.customerNumber
-group by o.customernumber
+SELECT 
+    c.customername, 
+    AVG(p.amount) as amount
+FROM customers AS c
+JOIN payments AS p ON c.customerNumber = p.customerNumber
+JOIN orders AS o   ON o.customernumber = c.customerNumber
+GROUP BY 
+    c.customernumber
 
 
