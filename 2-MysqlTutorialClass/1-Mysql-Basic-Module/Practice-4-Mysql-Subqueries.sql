@@ -24,7 +24,8 @@ SELECT
 FROM customers AS c
 JOIN payments AS p ON c.customerNumber = p.customerNumber
 JOIN orders AS o   ON o.customernumber = c.customerNumber
+where p.amount in (38983.226667, 26056.197500, 64909.804444)
 GROUP BY 
-    c.customernumber
+    c.customernumber;
 
 

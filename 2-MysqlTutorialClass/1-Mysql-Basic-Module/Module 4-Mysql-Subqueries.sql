@@ -534,24 +534,52 @@ WHERE s.store_id IN (
 );
 
 -- Business Scenario: "Find customers who have rented films that cost exactly one of the standard price points (0.99, 2.99, 4.99)"
-SELECT DISTINCT c.customer_id, 
-                c.first_name, 
-                c.last_name,
-                COUNT(DISTINCT r.rental_id) AS total_rentals
+SELECT 
+    DISTINCT c.customer_id,
+    c.first_name,
+    c.last_name,
+    COUNT(DISTINCT r.rental_id) AS total_rentals
 FROM customer c
-JOIN rental r ON c.customer_id = r.customer_id
+JOIN rental r    ON c.customer_id = r.customer_id
 JOIN inventory i ON r.inventory_id = i.inventory_id
-JOIN film f ON i.film_id = f.film_id
-WHERE f.rental_rate IN (0.99, 2.99, 4.99)
-GROUP BY c.customer_id, 
-         c.first_name, 
-         c.last_name
-ORDER BY total_rentals DESC;
+JOIN film f      ON i.film_id = f.film_id
+WHERE 
+    f.rental_rate IN (0.99, 
+                      2.99, 
+                      4.99)
+GROUP BY 
+    c.customer_id,
+    c.first_name,
+    c.last_name
+ORDER BY 
+    total_rentals DESC;
 
 
 --
-select rental_rate
-from film
+
+-- 3.2  Complete Guide: Multiple-Row Operators (IN, ANY, ALL)
+-- Business Scenario: "Find films more expensive than ANY film in the 'Family' category"
+SELECT 
+    f.film_id, 
+    f.title, 
+    f.rental_rate,
+    (   SELECT 
+            MIN(f2.rental_rate)
+        FROM film AS f2
+        JOIN film_category AS fc2 ON f2.film_id = fc2.film_id
+        JOIN category AS c2       ON c2.category_id = fc2.category_id
+        WHERE 
+            c2.name = "Family" ) AS cheapest_family_film
+FROM film AS f
+WHERE 
+    f.rental_rate > ANY 
+    (   SELECT 
+            f2.rental_rate
+        FROM film AS f2
+        JOIN film_category AS fc ON f2.film_id = fc.film_id
+        JOIN category AS c       ON c.category_id = fc.category_id
+        WHERE 
+            c.name = "Family")
 
 
 
