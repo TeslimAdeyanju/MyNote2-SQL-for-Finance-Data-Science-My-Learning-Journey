@@ -148,18 +148,30 @@ WHERE
     addressLine2 IS NOT NULL
     
 --using the LEAD
-
-WITH product_info as (select * from products where buyprice > 50)
-                      select productname,row_number() over () as list_number
-                      from product_info
-
-with detail AS ( SELECT DISTINCT customerName, country FROM customers)
-
-select country,
-       lead(country, 1) over() as next_country,
-       lead(country, 2) over() as next_country_2
-from detail 
-
+WITH 
+    product_info AS 
+    (   SELECT 
+            * 
+        FROM products 
+        WHERE 
+            buyprice > 50 
+    )
+SELECT 
+    productname, 
+    row_number() over () AS list_number
+FROM product_info
+WITH 
+    detail AS 
+    (   SELECT 
+            DISTINCT customerName, 
+            country 
+        FROM customers 
+    )
+SELECT
+    country,
+    lead(country, 1) over() AS next_country,
+    lead(country, 2) over() AS next_country_2
+FROM detail
 --
 select 
        count(amount) as bill, state
